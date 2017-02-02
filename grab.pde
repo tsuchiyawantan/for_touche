@@ -1,16 +1,16 @@
-/*
- * Touche for Arduino
- * Vidualization Example 04
- *
- */
- 
- float recVoltageMax;
- float recTimeMax;
+import java.util.Arrays;
+
+float recVoltageMax;
+float recTimeMax;
 float voltageMax; //電圧の最大値
 float timeMax; //電圧が最大値だったときの時間
 int start;
 int goal;
+int[] vr = new int[4];
+int[] vl = new int[4];
 boolean vanishflag = false;
+boolean bottleflag = false;
+int count = 0;
 
 BallSystem bs;
 
@@ -20,6 +20,7 @@ void setup() {
   colorMode(RGB, 255, 255, 255, 100);
   background(0, 0, 0, 100);
   bs = new BallSystem(new PVector(width/2, height/2));
+  init();
   // ポートを設定
   // PortSelected=5; 
   // シリアルポートを初期化
@@ -30,17 +31,46 @@ void draw() {
   background(0, 0, 0, 100);
   
   if(mousePressed==true){
+    if(count%5==0 && count<50) {
+      for(int i=0; i<vr.length; i++) vr[i] = vr[i] + (int)random(-10, -1);
+        for(int i=0; i<vl.length; i++) vl[i] = vl[i] + (int)random(1, 10);
+      }
     bs.addParticle();
     bs.run();
+    count++;
   }
   if(vanishflag==true){
+    count = 0;
+    init();
     bs.vanishBalls();
   }
-  //びん
+
+  bottle();
+}
+
+void init(){
+  Arrays.fill(vr, 80);
+  Arrays.fill(vl, -80);
+}
+
+void bottle(){
   pushMatrix();
   translate(width/2, height/2);
   fill(255, 0, 0, 100);
-  rect(-100, -100, 150, 300);
+  beginShape();
+  vertex(-80, -80);
+  vertex(80, -80);
+  vertex(vr[0], -34);
+  vertex(vr[1], 12);
+  vertex(vr[2], 58);
+  vertex(vr[3], 104);
+  vertex(80, 150);
+  vertex(-80, 150);
+  vertex(vl[0], 104);
+  vertex(vl[1], 58);    
+  vertex(vl[2], 12);
+  vertex(vl[3], -34);
+  endShape(CLOSE);
   popMatrix();
 }
 
@@ -96,7 +126,7 @@ class BallSystem {
       }
     }
   }
-  
+
   void delete(){
     balls.clear();
   }
