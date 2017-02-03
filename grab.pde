@@ -18,7 +18,7 @@ void setup() {
   //画面サイズ
   size(800, 600);
   colorMode(RGB, 255, 255, 255, 100);
-  background(0, 0, 0, 100);
+  background(173,216,230, 100);
   bs = new BallSystem(new PVector(width/2, height/2));
   init();
   // ポートを設定
@@ -28,7 +28,7 @@ void setup() {
 }
 
 void draw() {
-  background(0, 0, 0, 100);
+  background(173,216,230, 100);
   
   if(mousePressed==true){
     if(count%5==0 && count<50) {
@@ -42,10 +42,14 @@ void draw() {
   if(vanishflag==true){
     count = 0;
     init();
+    bs.remainBalls();
     bs.vanishBalls();
-  }
-
+  } 
   bottle();
+
+  if(bs.balls.size()==0) {
+    textGenerator();
+  }
 }
 
 void init(){
@@ -53,10 +57,16 @@ void init(){
   Arrays.fill(vl, -80);
 }
 
+void textGenerator(){
+ fill(255, 255, 255, 100);
+ textSize(25);
+ text("GRAB!!", width/2-50, height/2);
+}
+
 void bottle(){
   pushMatrix();
   translate(width/2, height/2);
-  fill(255, 0, 0, 100);
+  fill(192, 192, 192, 100);
   beginShape();
   vertex(-80, -80);
   vertex(80, -80);
@@ -92,15 +102,27 @@ void stop() {
 
 class BallSystem {
   ArrayList<Ball> balls;
+  ArrayList<Ball> remains;
   PVector origin;
 
   BallSystem(PVector position) {
     origin = position.copy();
     balls = new ArrayList<Ball>();
+    remains = new ArrayList<Ball>();
   }
 
   void addParticle() {
     balls.add(new Ball(origin));
+  }
+
+  void remainBalls(){
+    for (int i = balls.size()-1; i >= 0; i--) {
+      if((int)random(1, 100)<20){
+        Ball p = balls.get(i);
+        p.iRemainer;
+        remains.add(p);
+      }
+    }
   }
 
   void vanishBalls(){
@@ -109,7 +131,6 @@ class BallSystem {
       for (int i = balls.size()-1; i >= 0; i--) {
         Ball p = balls.get(i);
         p.vanish();
-
         if (p.isDead()) {
           balls.remove(i);
         }
@@ -142,24 +163,39 @@ class Ball {
   int speedY;
   int lifespan;
   int deg;
-
+  int sorf=1;
+  boolean remainer;
+  PImage img;
+  
   Ball(PVector origin){
+    String ballname;
     x = (int)origin.x;
-    y = (int)origin.y;
+    y = (int)origin.y-70;
 
     speedX = (int)random(-10, 10);
     speedY = (int)random(-10, -1);
-
     while(speedX == 0){
       speedX = (int)random(-10, 10);
     }
-    lifespan = 255;
-    deg = 360;
+
+    lifespan = (int)random(1, 200);
+    deg = (int)random(0, 360);
+
+    if((int)random(1, 100)%30 == 0) {
+      sorf=1;
+      ballname = "img/shrimp.png";
+    }
+    else {
+      sorf=0;
+      ballname = "img/fish1.png";
+    }
+    img = loadImage(ballname);
   }
 
   void run(){
     update();
     pushMatrix();
+    //物体を描く前に回転
     translate(x, y); 
     wiggle();
     display();
@@ -190,8 +226,12 @@ class Ball {
   }
 
   void display(){
-    fill(255,  0, 0, lifespan--);
-    rect(0, 0, 20, 20);
+    tint(255, lifespan--);
+    image(img, 0, 0, 20, 20);
+  }
+
+  boolean iRemainer(){
+    remainer = true;
   }
 
   boolean isDead(){
