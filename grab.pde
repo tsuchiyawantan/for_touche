@@ -141,6 +141,7 @@ class Ball {
   int speedX;
   int speedY;
   int lifespan;
+  int deg;
 
   Ball(PVector origin){
     x = (int)origin.x;
@@ -153,11 +154,20 @@ class Ball {
       speedX = (int)random(-10, 10);
     }
     lifespan = 255;
+    deg = 360;
   }
 
   void run(){
     update();
+    pushMatrix();
+    translate(x, y); 
+    wiggle();
     display();
+    popMatrix();
+  }
+
+  void wiggle(){
+    rotate(radians(deg--));
   }
 
   void update(){
@@ -172,12 +182,16 @@ class Ball {
     }
   }
   void vanish(){
+    pushMatrix();
+    translate(x, y); 
+    wiggle();
     display();
+    popMatrix();
   }
 
   void display(){
     fill(255,  0, 0, lifespan--);
-    ellipse(x, y, 20, 20);
+    rect(0, 0, 20, 20);
   }
 
   boolean isDead(){
