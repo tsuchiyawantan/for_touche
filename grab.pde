@@ -11,6 +11,7 @@ int[] vl = new int[4];
 boolean vanishflag = false;
 boolean bottleflag = false;
 int count = 0;
+PImage bk;
 
 BallSystem bs;
 
@@ -18,7 +19,8 @@ void setup() {
   //画面サイズ
   size(800, 600);
   colorMode(RGB, 255, 255, 255, 100);
-  background(173,216,230, 100);
+  bk = loadImage("img/seabk.jpg");
+  background(bk);
   bs = new BallSystem(new PVector(width/2, height/2));
   init();
   // ポートを設定
@@ -28,12 +30,13 @@ void setup() {
 }
 
 void draw() {
-  background(173,216,230, 100);
-  
+  background(bk);
+  bottle();    
+
   if(mousePressed==true){
     if(count%5==0 && count<50) {
       for(int i=0; i<vr.length; i++) vr[i] = vr[i] + (int)random(-10, -1);
-        for(int i=0; i<vl.length; i++) vl[i] = vl[i] + (int)random(1, 10);
+      for(int i=0; i<vl.length; i++) vl[i] = vl[i] + (int)random(1, 10);
       }
     bs.addParticle();
     bs.run();
@@ -42,11 +45,8 @@ void draw() {
   if(vanishflag==true){
     count = 0;
     init();
-    bs.remainBalls();
     bs.vanishBalls();
   } 
-  bottle();
-
   if(bs.balls.size()==0) {
     textGenerator();
   }
@@ -112,17 +112,8 @@ class BallSystem {
   }
 
   void addParticle() {
-    balls.add(new Ball(origin));
-  }
-
-  void remainBalls(){
-    for (int i = balls.size()-1; i >= 0; i--) {
-      if((int)random(1, 100)<20){
-        Ball p = balls.get(i);
-        p.iRemainer;
-        remains.add(p);
-      }
-    }
+    Ball p = new Ball(origin);
+    balls.add(p);
   }
 
   void vanishBalls(){
@@ -156,7 +147,7 @@ class BallSystem {
 
 // A simple Ball class
 
-class Ball {
+class Ball implements Cloneable{
   int x;
   int y;
   int speedX;
@@ -164,7 +155,6 @@ class Ball {
   int lifespan;
   int deg;
   int sorf=1;
-  boolean remainer;
   PImage img;
   
   Ball(PVector origin){
@@ -178,7 +168,7 @@ class Ball {
       speedX = (int)random(-10, 10);
     }
 
-    lifespan = (int)random(1, 200);
+    lifespan = 100;
     deg = (int)random(0, 360);
 
     if((int)random(1, 100)%30 == 0) {
@@ -217,21 +207,24 @@ class Ball {
       speedY *= -1;
     }
   }
+
   void vanish(){
     pushMatrix();
     translate(x, y); 
     wiggle();
-    display();
+    displayVanish();
     popMatrix();
   }
 
   void display(){
-    tint(255, lifespan--);
+    noTint();
     image(img, 0, 0, 20, 20);
   }
 
-  boolean iRemainer(){
-    remainer = true;
+  void displayVanish(){
+    lifespan = lifespan-2;
+    tint(255, lifespan);
+    image(img, 0, 0, 20, 20);
   }
 
   boolean isDead(){
